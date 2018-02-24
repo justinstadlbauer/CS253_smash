@@ -54,7 +54,7 @@ int main(void)
 //  - cd:
 //     Changes present working directory or issues
 //     an error if the directory path is invalid 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * */
+* * * * * * * * * * * * * * * * * * * * * * * * * * */
 void read_user_input(void)
 {
   char buff[MAXLINE]; // Buffer to store user input
