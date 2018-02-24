@@ -7,4 +7,4 @@ $(EXE): smash.o
 	$(CC) $(CFLAGS) $^ -o $@
 
 clean:
-	rm -f *.o smash 
+	rm -f *.o $(EXE) 
