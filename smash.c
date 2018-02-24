@@ -20,9 +20,9 @@ void read_user_input(void)
 {
   char buff[MAXLINE];
   char cwd[64];
-  char * exit1 = "exit";
-  char * cd = "cd";
-  char * token;
+  char* exit1 = "exit";
+  char* cd = "cd";
+  char* token;
   int i = 0;
   int cd_flag = 0;
   
@@ -30,11 +30,11 @@ void read_user_input(void)
   while (fgets(buff, MAXLINE, stdin) != NULL)
   {
     buff[strlen(buff) - 1] = '\0';
-
+    cd_flag = 0;
     token = strtok(buff," ");
     while (token != NULL)
     {
-      if (cd_flag == 1)
+      if ((cd_flag == 1))
       {
 	if (chdir(token) == -1)
 	{
@@ -56,7 +56,7 @@ void read_user_input(void)
 	cd_flag = 1;
 	token = strtok(NULL," ");
       }
-      else 
+      else
       {
 	printf("[%d] %s\n",i++,token);
         token = strtok(NULL," ");
