@@ -1,8 +1,9 @@
 CC = gcc
 CFLAGS = -Wall -g
-all:
+EXE = smash
+all:	$(EXE)
 
-smash: smash.c
+$(EXE): smash.o
 	$(CC) $(CFLAGS) $^ -o $@
 
 clean:
