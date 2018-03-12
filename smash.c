@@ -1,11 +1,11 @@
-//-----------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------
 // Justin Stadlbauer
 // CS 253
-// February 24, 2018
+// March 11, 2018
 // Dr. Conrad
-//-----------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------
 // NAME
 //  smash - program that implements a basic shell 
 //
@@ -24,26 +24,46 @@
 //
 //  If the directory path is invalid, an error message is print to the shell. Issuing 
 //  the cd command without a specified directory path does not change the present working 
-//  directory.      
-//-----------------------------------------------------------------------------------
+//  directory.
+//
+// KNOWN BUGS
+//  Extra input after the directory path is ignored by the cd command. Need to throw an
+//  error.
+//
+// AUTHORS
+//  02/24/2018 ........................................................................jws
+//  03/11/2018 ........................................................................jws      
+//----------------------------------------------------------------------------------------
 
-/* ----- INCLUDE STATEMENTS ----- */
+/* --------- INCLUDE STATEMENTS --------- */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 
-/* ----- DEFINE STATEMENTS ----- */
+/* --------- DEFINE STATEMENTS --------- */
 #define MAXLINE 4096
 
-/* ----- FUNCTION PROTOTYPES ----- */
+/* --------- FUNCTION PROTOTYPES --------- */
 void read_user_input(void);
+char* process_token(char* buff);
+void cmd_input_mem_init(void);
+void exit_smash(char* token, int* token_count);
+char* process_user_input(void);
+void cd_process(int* cd_flag);
+void cd_check(char* token, int* cd_flag, int* token_count);
+void echo_input(char* token);
 
-/* ----- GLOBAL VARIABLES ----- */
-struct Cmd {char *cmd;};
-struct Cmd *newCmd(void) {return (struct Cmd *)malloc(sizeof(struct Cmd));};
-int n = 0;
-int k = 0;
+/* --------- GLOBAL VARIABLES --------- */
+char buff[MAXLINE]; // Buffer to store user input
+char* cd_str = "cd"; // Change directory string used for comparison
+char* exit_str = "exit"; // Exit string used for comparison
+int cd_flag = 0; // Flag is set if a "cd" token is processed
+char* token; // Pointer to the next token
+char cwd[64]; // Buffer to store the absolute path returned by getcwd
+int i = 0; // Used to format echoed output
+int token_count;
+
 int main(void)
 {
   read_user_input();
@@ -62,83 +82,80 @@ int main(void)
 * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void read_user_input(void)
 {
-  struct Cmd* cmd_array[4096];
-  for (int j = 0; j < 4096; j++) // Allocate memory for history
-  {
-    cmd_array[j] = newCmd();
-  }
-  char buff[MAXLINE]; // Buffer to store user input
- 
-  char cmd_input[MAXLINE];
-  char cwd[64]; // Buffer to store the absolute path returned by getcwd
-  char* exit1 = "exit"; // Exit string used for comparison
-  char* cd = "cd"; // Change directory string used for comparison
-  char* history = "history";
-  char* token; // Pointer to the next token  
-  int i = 0; // Used to format echoed output
-  int cd_flag = 0; // Flag is set if a "cd" token is processed
-  
   fprintf(stderr,"$"); // '$' - marker that characterizes the smash shell
   while (fgets(buff, MAXLINE, stdin) != NULL) // Process user input from stdin and store in buff
   {
     buff[strlen(buff) - 1] = '\0'; // Replace a newline with null
-    (void)strncpy(cmd_input,buff,sizeof(cmd_input));
-   
-    cd_flag = 0; // Ensures that a cd command without a path argument does nothing
-    token = strtok(buff," "); // Assign address of first token delimited by " " in buff
+    cd_flag = 0;
+    token = process_token(buff);
+    token_count = 0;
     while (token != NULL)
     {
-      if ((cd_flag == 1)) // Last token was "cd"
+      if((cd_flag == 1)) // Performs the "cd" operation
       {
-	if (chdir(token) == -1) // If the directory path provided is invalid, print an error message
-	{
-	  fprintf(stderr,"error: %s does not exist\n",token);
-	}
-	else // If the directory path provided is valid, print the present working directory with getcwd
-	{
-	  printf("%s\n",getcwd(cwd,64));
-	}
-	cd_flag = 0; // Set flag to 0 to process next cd command
-	break;
+        cd_process(&cd_flag);
+        cd_flag = 0;
+        break;
       }
-      if (strcmp(history,token) == 0)
-      {
-        while (cmd_array[k]->cmd != NULL)
-        {
-          printf("%d %s\n",k,cmd_array[k]->cmd);
-          k++;
-        }
-      }
-      if (strcmp(exit1,token) == 0) // Compare present token to "exit"
-      {
-        exit(EXIT_SUCCESS); // If "exit", exit the shell
-      }
-      else if (strcmp(cd,token) == 0) // Current token is "cd"
-      {
-	cd_flag = 1; // Set to 1 to process cd command via the next token - the directory path
-	token = strtok(NULL," "); // For each subsequent call to parse user input stored in buff, str is set to NULL
-      }
-      else
-      {
-	printf("[%d] %s\n",i++,token); // Echo each token from stdin
-        token = strtok(NULL," "); // For each subsequent call to parse user input stored in buff, str is set to NULL
-      }    
+      exit_smash(token, &token_count);  // Exits the shell
+      cd_check(token, &cd_flag, &token_count); // Checks for "cd" token
+      echo_input(token); // Echoes user input
+      token = process_token(NULL); // Sets up the next token
+      token_count++;   
     }
-        
-    i = 0;
-    cmd_array[n++]->cmd = strdup(cmd_input);
-    printf("Input command: %s\n",cmd_input);
-    //printf("Address of p: %d\n",(int)p);
-    //p++;
-    printf("Stored in struct: %s Address: %d\n",cmd_array[0]->cmd,(int)cmd_array[0]);
-    printf("Stored in struct: %s Address: %d\n",cmd_array[1]->cmd,(int)cmd_array[1]);
-    printf("Stored in struct: %s Address: %d\n",cmd_array[2]->cmd,(int)cmd_array[2]);
-    printf("n: %d\n",n);
     fprintf(stderr,"$");
+    i = 0;
   }
-  for (k = 0; k < 4095; k++)
+}
+
+/* Creates tokens from the input string */
+char* process_token(char* buff)
+{
+  return strtok(buff," "); // Assign address of first token delimited by " " in buff   
+}
+
+/* Exits the smash shell when the user types "exit" */
+void exit_smash(char* token, int* token_count)
+{
+  if ((strcmp(exit_str, token) == 0) && (*token_count == 0)) // Ensures "exit" is the first command
   {
-    free(cmd_array[k]->cmd);
+    exit(EXIT_SUCCESS); // If "exit", exit the shell
   }
+}
+
+/* Echoes input from the user */
+void echo_input(char* token)
+{
+  if ((strcmp(cd_str, token) == 0) && (token_count == 0)) // Ensures the "cd" is the first command
+  {
+    return;
+  }
+  else
+  {
+    printf("[%d] %s\n",i++,token); // Echo each token from stdin
+  }
+}
+
+/* Checks if the first token is "cd" */
+void cd_check(char* token, int* cd_flag, int* token_count)
+{
+  if ((strcmp(cd_str, token) == 0) && (*token_count == 0)) // Current token is "cd"
+  {
+    *cd_flag = 1; // Set to 1 to process cd command via the next token - the directory path
+  }
+}
+
+/* Perform the cd operation on the specified directory path */
+void cd_process(int* cd_flag)
+{
+  if (chdir(token) == -1) // If the directory path provided is invalid, print an error message
+  {
+    fprintf(stderr,"error: %s does not exist\n",token);
+  }
+  else // If the directory path provided is valid, print the present working directory with getcwd
+  {
+    printf("%s\n",getcwd(cwd,64));
+  }
+  *cd_flag = 0; // Set flag to 0 to process next cd command
 }
 
