@@ -92,7 +92,6 @@ void read_user_input(void)
       if((cd_flag == 1)) // Performs the "cd" operation
       {
         cd_process(token, &cd_flag);
-        cd_flag = 0;
         break;
       }
       exit_smash(token, &token_count);  // Exits the shell
