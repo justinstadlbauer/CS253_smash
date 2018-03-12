@@ -47,7 +47,6 @@
 /* --------- FUNCTION PROTOTYPES --------- */
 void read_user_input(void);
 char* process_token(char* buff);
-void cmd_input_mem_init(void);
 void exit_smash(char* token, int* token_count);
 void cd_process(int* cd_flag);
 void cd_check(char* token, int* cd_flag, int* token_count);
