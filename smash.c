@@ -49,7 +49,6 @@ void read_user_input(void);
 char* process_token(char* buff);
 void cmd_input_mem_init(void);
 void exit_smash(char* token, int* token_count);
-char* process_user_input(void);
 void cd_process(int* cd_flag);
 void cd_check(char* token, int* cd_flag, int* token_count);
 void echo_input(char* token);
