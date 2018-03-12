@@ -48,7 +48,7 @@
 void read_user_input(void);
 char* process_token(char* buff);
 void exit_smash(char* token, int* token_count);
-void cd_process(int* cd_flag);
+void cd_process(char* token, int* cd_flag);
 void cd_check(char* token, int* cd_flag, int* token_count);
 void echo_input(char* token);
 
@@ -91,7 +91,7 @@ void read_user_input(void)
     {
       if((cd_flag == 1)) // Performs the "cd" operation
       {
-        cd_process(&cd_flag);
+        cd_process(token, &cd_flag);
         cd_flag = 0;
         break;
       }
@@ -144,7 +144,7 @@ void cd_check(char* token, int* cd_flag, int* token_count)
 }
 
 /* Perform the cd operation on the specified directory path */
-void cd_process(int* cd_flag)
+void cd_process(char* token, int* cd_flag)
 {
   if (chdir(token) == -1) // If the directory path provided is invalid, print an error message
   {
