@@ -50,7 +50,7 @@ char* process_token(char* buff);
 void exit_smash(char* token, int* token_count);
 void cd_process(char* token, int* cd_flag);
 void cd_check(char* token, int* cd_flag, int* token_count);
-void echo_input(char* token);
+void echo_input(char* token, int* token_count);
 
 /* --------- GLOBAL VARIABLES --------- */
 char buff[MAXLINE]; // Buffer to store user input
@@ -97,7 +97,7 @@ void read_user_input(void)
       }
       exit_smash(token, &token_count);  // Exits the shell
       cd_check(token, &cd_flag, &token_count); // Checks for "cd" token
-      echo_input(token); // Echoes user input
+      echo_input(token, &token_count); // Echoes user input
       token = process_token(NULL); // Sets up the next token
       token_count++;   
     }
@@ -122,9 +122,9 @@ void exit_smash(char* token, int* token_count)
 }
 
 /* Echoes input from the user */
-void echo_input(char* token)
+void echo_input(char* token, int* token_count)
 {
-  if ((strcmp(cd_str, token) == 0) && (token_count == 0)) // Ensures the "cd" is the first command
+  if ((strcmp(cd_str, token) == 0) && (*token_count == 0)) // Ensures the "cd" is the first command
   {
     return;
   }
