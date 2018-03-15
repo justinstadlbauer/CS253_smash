@@ -48,19 +48,14 @@
 void read_user_input(void);
 char* process_token(char* buff);
 void exit_smash(char* token, int* token_count);
-void cd_process(char* token, int* cd_flag);
+void cd_process(char* token, int* cd_flag, char* path_buff);
 void cd_check(char* token, int* cd_flag, int* token_count);
 void echo_input(char* token, int* token_count);
 
 /* --------- GLOBAL VARIABLES --------- */
-char buff[MAXLINE]; // Buffer to store user input
 char* cd_str = "cd"; // Change directory string used for comparison
 char* exit_str = "exit"; // Exit string used for comparison
-int cd_flag = 0; // Flag is set if a "cd" token is processed
-char* token; // Pointer to the next token
-char cwd[64]; // Buffer to store the absolute path returned by getcwd
 int i = 0; // Used to format echoed output
-int token_count;
 
 int main(void)
 {
@@ -80,6 +75,13 @@ int main(void)
 * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void read_user_input(void)
 {
+  /* Automatic variables specific to parsing user input */
+  char buff[MAXLINE]; // Buffer to store user input
+  char* token; // Pointer to the next token
+  char cwd[64]; // Buffer to store the absolute path returned by getcwd
+  int cd_flag; // Flag is set if a "cd" token is processed
+  int token_count; // Keeps track of number of tokens - used to ensure that "cd" and "exit" are executed correctly
+
   fprintf(stderr,"$"); // '$' - marker that characterizes the smash shell
   while (fgets(buff, MAXLINE, stdin) != NULL) // Process user input from stdin and store in buff
   {
@@ -91,7 +93,7 @@ void read_user_input(void)
     {
       if((cd_flag == 1)) // Performs the "cd" operation
       {
-        cd_process(token, &cd_flag);
+        cd_process(token, &cd_flag, cwd);
         break;
       }
       exit_smash(token, &token_count);  // Exits the shell
@@ -143,7 +145,7 @@ void cd_check(char* token, int* cd_flag, int* token_count)
 }
 
 /* Perform the cd operation on the specified directory path */
-void cd_process(char* token, int* cd_flag)
+void cd_process(char* token, int* cd_flag, char* path_buff)
 {
   if (chdir(token) == -1) // If the directory path provided is invalid, print an error message
   {
@@ -151,7 +153,7 @@ void cd_process(char* token, int* cd_flag)
   }
   else // If the directory path provided is valid, print the present working directory with getcwd
   {
-    printf("%s\n",getcwd(cwd,64));
+    printf("%s\n",getcwd(path_buff,64));
   }
   *cd_flag = 0; // Set flag to 0 to process next cd command
 }
