@@ -18,7 +18,8 @@ int n = 0;
 
 void init_history(int size)
 {
-  for (int j = 0; j < size; j++)
+  int j;
+  for (j = 0; j < size; j++)
   {
     cmd_array[j] = newCmd();
   }
@@ -31,7 +32,8 @@ void add_history(char* buff)
 
 void clear_history(int size)
 {
-  for (int j = 0; j < size; j++)
+  int j;
+  for (j = 0; j < size; j++)
   {
     free(cmd_array[j]->cmd);
     free(cmd_array[j]);
@@ -40,9 +42,10 @@ void clear_history(int size)
 
 void print_history(void)
 {
-  for (int i = 0; cmd_array[i]->cmd != NULL; i++)
+  int j;
+  for (j = 0; cmd_array[j]->cmd != NULL; j++)
   {
-    printf("[%d]  %s\n",i,cmd_array[i]->cmd);
+    printf("[%d]  %s\n",j,cmd_array[j]->cmd);
   }
 }
 
