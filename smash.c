@@ -136,11 +136,15 @@ void exit_smash(char* token, int* token_count)
 /* Echoes input from the user */
 void echo_input(char* token, int* token_count)
 {
-  if (((strcmp(cd_str, token) == 0) && (*token_count == 0)) || (strcmp(history_str, token) == 0)) // Ensures the "cd" is the first command
+  if ((strcmp(cd_str, token) == 0) && (*token_count == 0)) // Ensures the "cd" is the first command
   {
     return;
   }
-  else
+  if ((strcmp(history_str, token) == 0) && (*token_count == 0)) // Ensures the "history" is the first command
+  {
+    return;
+  }
+  else 
   {
     printf("[%d] %s\n",i++,token); // Echo each token from stdin
   }
