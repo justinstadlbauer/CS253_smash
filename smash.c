@@ -60,7 +60,6 @@ int i = 0; // Used to format echoed output
 
 int main(void)
 {
-  
   read_user_input();
   return 0;
 }
@@ -77,7 +76,7 @@ int main(void)
 * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void read_user_input(void)
 {
-  malloc_history(512);
+  init_history(512);
   
   /* Automatic variables specific to parsing user input */
   char buff[MAXLINE]; // Buffer to store user input
@@ -91,7 +90,7 @@ void read_user_input(void)
   {
     buff[strlen(buff) - 1] = '\0'; // Replace a newline with null
 
-    process_history(buff);
+    add_history(buff);
 
     cd_flag = 0;
     token = process_token(buff);
@@ -125,7 +124,7 @@ void exit_smash(char* token, int* token_count)
 {
   if ((strcmp(exit_str, token) == 0) && (*token_count == 0)) // Ensures "exit" is the first command
   {
-    free_history(512);
+    clear_history(512);
     exit(EXIT_SUCCESS); // If "exit", exit the shell
   }
 }
