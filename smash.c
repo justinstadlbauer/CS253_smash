@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------------------
 // Justin Stadlbauer
 // CS 253
-// March 11, 2018
+// March 16, 2018
 // Dr. Conrad
 //----------------------------------------------------------------------------------------
 
@@ -32,7 +32,8 @@
 //
 // AUTHORS
 //  02/24/2018 ........................................................................jws
-//  03/11/2018 ........................................................................jws      
+//  03/11/2018 ........................................................................jws
+//  03/16/2018 ........................................................................jws      
 //----------------------------------------------------------------------------------------
 
 /* --------- INCLUDE STATEMENTS --------- */
@@ -52,10 +53,12 @@ void exit_smash(char* token, int* token_count);
 void cd_process(char* token, int* cd_flag, char* path_buff);
 void cd_check(char* token, int* cd_flag, int* token_count);
 void echo_input(char* token, int* token_count);
+void process_history(char* token, int* token_count);
 
 /* --------- GLOBAL VARIABLES --------- */
 char* cd_str = "cd"; // Change directory string used for comparison
 char* exit_str = "exit"; // Exit string used for comparison
+char* history_str = "history";
 int i = 0; // Used to format echoed output
 
 int main(void)
@@ -104,6 +107,7 @@ void read_user_input(void)
       }
       exit_smash(token, &token_count);  // Exits the shell
       cd_check(token, &cd_flag, &token_count); // Checks for "cd" token
+      process_history(token, &token_count);
       echo_input(token, &token_count); // Echoes user input
       token = process_token(NULL); // Sets up the next token
       token_count++;
@@ -132,7 +136,7 @@ void exit_smash(char* token, int* token_count)
 /* Echoes input from the user */
 void echo_input(char* token, int* token_count)
 {
-  if ((strcmp(cd_str, token) == 0) && (*token_count == 0)) // Ensures the "cd" is the first command
+  if (((strcmp(cd_str, token) == 0) && (*token_count == 0)) || (strcmp(history_str, token) == 0)) // Ensures the "cd" is the first command
   {
     return;
   }
@@ -165,3 +169,10 @@ void cd_process(char* token, int* cd_flag, char* path_buff)
   *cd_flag = 0; // Set flag to 0 to process next cd command
 }
 
+void process_history(char* token, int* token_count)
+{
+  if((strcmp(history_str, token) == 0) && (*token_count == 0))
+  {
+    print_history();
+  }
+}
