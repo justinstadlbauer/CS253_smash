@@ -51,14 +51,23 @@ void exit_smash(char* token, int* token_count);
 void cd_process(char* token, int* cd_flag, char* path_buff);
 void cd_check(char* token, int* cd_flag, int* token_count);
 void echo_input(char* token, int* token_count);
+struct Cmd* newCmd(void);
 
 /* --------- GLOBAL VARIABLES --------- */
 char* cd_str = "cd"; // Change directory string used for comparison
 char* exit_str = "exit"; // Exit string used for comparison
 int i = 0; // Used to format echoed output
+struct Cmd {char* cmd;};
+struct Cmd* cmd_array[512];
+int n = 0; 
+char* cpy_cmd;
 
 int main(void)
 {
+  for (int j = 0; j < 512; j++)
+  {
+    cmd_array[j] = newCmd();
+  }
   read_user_input();
   return 0;
 }
@@ -77,6 +86,7 @@ void read_user_input(void)
 {
   /* Automatic variables specific to parsing user input */
   char buff[MAXLINE]; // Buffer to store user input
+  char cmd_input[MAXLINE];
   char* token; // Pointer to the next token
   char cwd[64]; // Buffer to store the absolute path returned by getcwd
   int cd_flag; // Flag is set if a "cd" token is processed
@@ -86,6 +96,9 @@ void read_user_input(void)
   while (fgets(buff, MAXLINE, stdin) != NULL) // Process user input from stdin and store in buff
   {
     buff[strlen(buff) - 1] = '\0'; // Replace a newline with null
+    (void)strncpy(cmd_input,buff,sizeof(cmd_input));
+    cmd_input[sizeof(cmd_input) - 1] = '\0';
+
     cd_flag = 0;
     token = process_token(buff);
     token_count = 0;
@@ -100,10 +113,16 @@ void read_user_input(void)
       cd_check(token, &cd_flag, &token_count); // Checks for "cd" token
       echo_input(token, &token_count); // Echoes user input
       token = process_token(NULL); // Sets up the next token
-      token_count++;   
+      token_count++;
     }
+    cpy_cmd = strdup(cmd_input);
+    cmd_array[n++]->cmd = cpy_cmd;
+    //printf("Stored in struct: %s \n",cmd_array[0]->cmd);
+    //printf("Stored in struct: %s \n",cmd_array[1]->cmd);
+    //printf("Stored in struct: %s \n",cmd_array[2]->cmd);
     fprintf(stderr,"$");
     i = 0;
+    free(cpy_cmd);
   }
 }
 
@@ -118,6 +137,10 @@ void exit_smash(char* token, int* token_count)
 {
   if ((strcmp(exit_str, token) == 0) && (*token_count == 0)) // Ensures "exit" is the first command
   {
+    for (int k = 0; k < 512; k++)
+    {
+      free(cmd_array[k]);
+    }
     exit(EXIT_SUCCESS); // If "exit", exit the shell
   }
 }
@@ -158,3 +181,7 @@ void cd_process(char* token, int* cd_flag, char* path_buff)
   *cd_flag = 0; // Set flag to 0 to process next cd command
 }
 
+struct Cmd* newCmd(void)
+{
+  return (struct Cmd *)malloc(sizeof(struct Cmd));
+}
