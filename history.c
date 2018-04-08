@@ -13,8 +13,9 @@ void print_history(void);
 
 /* GLOBAL VARIABLES */
 struct Cmd* cmd_array[512];
-struct Cmd {char* cmd;};
+struct Cmd {char* cmd; int exit_status;};
 int n = 0;
+int m = 0;
 
 void init_history(int size)
 {
@@ -47,6 +48,11 @@ void print_history(void)
   {
     printf("[%d]  %s\n",j,cmd_array[j]->cmd);
   }
+}
+
+void store_exit_status(int status)
+{
+	cmd_array[m++]->exit_status = status;
 }
 
 struct Cmd* newCmd(void)
