@@ -203,6 +203,6 @@ int exec_program(char *buff[], int percent)
 			fprintf(stderr, "waitpid error");				// Provide a msg if waitpid error
 		}
 	}
-	return status;									// Return the exit status to smash
+	return status;									// Return child exit status to smash
 }
 
