@@ -47,7 +47,7 @@ int main(void)
 //  - history:
 //     Prints all prior commands issued to the smash
 //     shell
-// get_user_input() also can execute programs through
+// get_user_input() can also execute programs through
 // the execve system call 	     
 * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void get_user_input(void)
@@ -58,7 +58,7 @@ void get_user_input(void)
 	char buff[MAXLINE]; 							       	// Buffer to store user input
 	char *cmd_args[2048];							       	// Store program command/args (used with execve)
 	char *token; 								      	// Pointer to the next token
-	char cwd[64]; 								     	// Buffer to store path returned by getcwd
+	char cwd[MAXLINE]; 								     	// Buffer to store path returned by getcwd
 	int cd_flag; 								       	// Flag is set if a "cd" token is processed
 	int token_count; 							       	// Ensure that "cd" and "exit" execute correctly
 	const char *ENV_VAR = getenv("SMASH_KILL");				       	// Environ. var. that determines process exec %
@@ -158,7 +158,7 @@ void process_cd(char *token, int *cd_flag, char *path_buff)
 	}
 	else 							      			
 	{
-		printf("%s\n",getcwd(path_buff,64));					// Print the present working directory with getcwd
+		printf("%s\n",getcwd(path_buff,MAXLINE));				// Print the present working directory with getcwd
 	}
 	*cd_flag = 0; 									// Set flag to 0 to process the next cd command
 }
@@ -193,7 +193,7 @@ int exec_program(char *buff[], int percent)
 		}
 		else if (pid == 0)							// Child process
 		{
-			execvp(input_cmd, buff);					// Execute program by calling execvp
+			execvp(input_cmd, buff);				 	// Execute program by calling execvp
 			fprintf(stderr, "smash: %s: command not found\n", *buff);	// excevp doesn't return -- if it does, print error msg
 			exit(EXIT_FAILURE);						// Return -1 to smash
 		}
