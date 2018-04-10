@@ -1,8 +1,3 @@
- Justin Stadlbauer  
- CS 253 (Boise State) / smash README  
- April 8, 2018  
- Dr. Conrad  
-
 ## NAME
   smash - program that implements a basic shell 
 
@@ -60,3 +55,8 @@
  03/11/2018 ......................................................................................jws  
  03/16/2018 ......................................................................................jws       
  04/07/2018 ......................................................................................jws  
+
+ Justin Stadlbauer  
+ CS 253 (Boise State) / smash README  
+ April 8, 2018  
+ Dr. Conrad  
